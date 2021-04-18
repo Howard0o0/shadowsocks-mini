@@ -1,13 +1,24 @@
 
-# Usage
+# shadowsocks-mini 
 
-## Sever 
+shadowsocks的精简实现 
+
+暂时没有兼容现有的shadowsocks客户端,与shadowsocks的加密隧道协议有出入
+
+## Install
+```bash
+go get -u -v github.com/Howard0o0/shadowsocks-mini
+```
+
+## Usage
+
+### Sever 
 配置文件通过绝对路径指定 
 ```bash
 shadowsocks-mini -s -conf /etc/ssmini.json
 ```
 
-## Client 
+### Client 
 ```bash
 shadowsocks-mini -c -conf /etc/ssmini.json
 ```
