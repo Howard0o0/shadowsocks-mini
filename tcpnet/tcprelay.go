@@ -10,8 +10,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/Howard0o0/ssmini/encrypt"
-	"github.com/Howard0o0/ssmini/tinylog"
+	"github.com/Howard0o0/shadowsocks-mini/encrypt"
+	"github.com/Howard0o0/shadowsocks-mini/tinylog"
 )
 
 func Forward(srcConn net.Conn, destConn net.Conn) {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/Howard0o0/ssmini/tinylog"
+	"github.com/Howard0o0/shadowsocks-mini/tinylog"
 )
 
 func Socks5Auth(readBuf []byte) bool {

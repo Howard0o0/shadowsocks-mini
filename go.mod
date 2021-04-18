@@ -1,4 +1,4 @@
-module github.com/Howard0o0/ssmini
+module github.com/Howard0o0/shadowsocks-mini
 
 go 1.15
 

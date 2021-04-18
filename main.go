@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Howard0o0/ssmini/core"
-	"github.com/Howard0o0/ssmini/tinylog"
+	"github.com/Howard0o0/shadowsocks-mini/core"
+	"github.com/Howard0o0/shadowsocks-mini/tinylog"
 )
 
 func main() {

@@ -3,9 +3,9 @@ package core
 import (
 	"net"
 
-	"github.com/Howard0o0/ssmini/encrypt"
-	"github.com/Howard0o0/ssmini/tcpnet"
-	"github.com/Howard0o0/ssmini/tinylog"
+	"github.com/Howard0o0/shadowsocks-mini/encrypt"
+	"github.com/Howard0o0/shadowsocks-mini/tcpnet"
+	"github.com/Howard0o0/shadowsocks-mini/tinylog"
 )
 
 func SSLocal(localPort, remotePort, remoteIP, method, passwd string) {

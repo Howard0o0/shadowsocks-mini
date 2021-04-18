@@ -5,9 +5,9 @@ import (
 	"io"
 	"net"
 
-	"github.com/Howard0o0/ssmini/encrypt"
-	"github.com/Howard0o0/ssmini/tinylog"
-	"github.com/Howard0o0/ssmini/util"
+	"github.com/Howard0o0/shadowsocks-mini/encrypt"
+	"github.com/Howard0o0/shadowsocks-mini/tinylog"
+	"github.com/Howard0o0/shadowsocks-mini/util"
 )
 
 var codec encrypt.Codec

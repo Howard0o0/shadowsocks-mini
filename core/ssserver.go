@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/Howard0o0/ssmini/encrypt"
-	"github.com/Howard0o0/ssmini/procotol"
-	"github.com/Howard0o0/ssmini/tcpnet"
-	"github.com/Howard0o0/ssmini/tinylog"
+	"github.com/Howard0o0/shadowsocks-mini/encrypt"
+	"github.com/Howard0o0/shadowsocks-mini/procotol"
+	"github.com/Howard0o0/shadowsocks-mini/tcpnet"
+	"github.com/Howard0o0/shadowsocks-mini/tinylog"
 	"github.com/pkg/errors"
 )
 

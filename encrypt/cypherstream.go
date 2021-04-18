@@ -7,8 +7,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/Howard0o0/ssmini/tinylog"
-	"github.com/Howard0o0/ssmini/util"
+	"github.com/Howard0o0/shadowsocks-mini/tinylog"
+	"github.com/Howard0o0/shadowsocks-mini/util"
 	"github.com/pkg/errors"
 )
 

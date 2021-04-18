@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Howard0o0/ssmini/tinylog"
+	"github.com/Howard0o0/shadowsocks-mini/tinylog"
 )
 
 type Config struct {
