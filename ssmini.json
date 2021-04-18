@@ -1,0 +1,9 @@
+{
+        "server": "www.howard97.top",
+        "server_port": "1998",
+        "local_address": "127.0.0.1",
+        "local_port": "1996",
+        "password": "2pKR1Kl2jayPXtbwT2GKd129GSOU64Cdv7ejfUZJ8+Ar/wgYc1hjla4fCsBrVB2gkKjf5tFQMbPjZ3tmTp+aZBZLLoS5hafGFzrb7c1F0P18QcriAmqcuyoe6cNlN38Q/iek9ldDOfLXR0BKAMjMsPWYjPHeBfccPHAT4e4t07Ul1aUzMIZTKAmOPRVVx3hCupv4iwf0D5ZfzkSq+cIEElrlO4hpEWKeA5myLGi4rzhR6ughogY1VuxxP4mDNNK82Xr7C8mmdA1tPkh+JimhGiB1xExcxS+rgVl5y02+Npdb725ggmxvG1LBItjntuQB/HIkDNyHrc/6FLEOk90ytA==",
+        "method": "chacha20",
+        "timeout": 300
+}
