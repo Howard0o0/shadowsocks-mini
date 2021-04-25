@@ -1,11 +1,12 @@
 
 # shadowsocks-mini 
 
-a simple and mini implementation of shadowsocks
+a simple and mini implementation of shadowsocks-server
 
 rewrite shadowsocks in go to learn how it works
 
 thanks [go-shadowsocks2](https://github.com/shadowsocks/go-shadowsocks2)
+
 
 ## Features
 - very simple and easy, just a few files
