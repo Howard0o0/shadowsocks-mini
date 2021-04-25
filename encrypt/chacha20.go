@@ -2,7 +2,6 @@ package encrypt
 
 import (
 	"crypto/cipher"
-	"crypto/sha256"
 
 	"golang.org/x/crypto/chacha20poly1305"
 )
@@ -12,41 +11,36 @@ type Chacha20Codec struct {
 	nonce []byte
 }
 
-func NewChacha20Codec(passwd string) (*Chacha20Codec, error) {
-	key := sha256.Sum256([]byte(passwd))
-	aead, err := chacha20poly1305.NewX(key[:])
+func NewChacha20Codec(passwd string, salt []byte) (*Chacha20Codec, error) {
+
+	subkey := make([]byte, chacha20poly1305.KeySize)
+	key := kdf(passwd, chacha20poly1305.KeySize)
+	hkdfSHA1(key, salt, []byte("ss-subkey"), subkey)
+	aead, err := chacha20poly1305.New(subkey)
 	if err != nil {
 		return nil, err
 	}
+	nonce := make([]byte, aead.NonceSize())
 
-	return &Chacha20Codec{aead: aead}, nil
-}
-
-func (codec *Chacha20Codec) SetNonce(nonce []byte) {
-	codec.nonce = nonce
+	return &Chacha20Codec{aead: aead, nonce: nonce}, nil
 }
 
 func (codec Chacha20Codec) NonceSize() int {
-	return chacha20poly1305.NonceSizeX
+	return codec.aead.NonceSize()
 }
 
-func (codec Chacha20Codec) NonceEmpty() bool {
-	return len(codec.nonce) != codec.NonceSize()
+func (codec Chacha20Codec) Overhead() int {
+	return codec.aead.Overhead()
 }
 
-func (codec Chacha20Codec) Encode(origData []byte) []byte {
-	if codec.NonceEmpty() {
-		return []byte{}
-	}
+func (codec Chacha20Codec) Seal(plaintext []byte) []byte {
 
-	return codec.aead.Seal(nil, codec.nonce, origData, nil)
+	defer increment(codec.nonce)
+	return codec.aead.Seal(nil, codec.nonce, plaintext, nil)
 }
 
-func (codec Chacha20Codec) Decode(encrypted []byte) (decrypted []byte) {
-	if codec.NonceEmpty() {
-		return []byte{}
-	}
+func (codec Chacha20Codec) Open(ciphertext []byte) ([]byte, error) {
 
-	decypherText, _ := codec.aead.Open(nil, codec.nonce, encrypted, nil)
-	return decypherText
+	defer increment(codec.nonce)
+	return codec.aead.Open(nil, codec.nonce, ciphertext, nil)
 }

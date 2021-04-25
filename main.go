@@ -6,34 +6,26 @@ import (
 	"os"
 
 	"github.com/Howard0o0/shadowsocks-mini/core"
-	"github.com/Howard0o0/shadowsocks-mini/tinylog"
 )
 
 func main() {
 
-	// ssserverTest()
-
-	tinylog.SetLevel(tinylog.InfoLevel)
-
-	identity, confFile, status := parseFlag()
-	if !status {
+	if len(os.Args) != 2 {
 		prtUsage()
 		os.Exit(1)
 	}
 
-	cfg, err := parseConf(confFile)
+	cfg, err := parseConf(os.Args[1])
 	if err != nil {
-		tinylog.LogError("parse config failed : %s \n", err)
+		fmt.Printf("parse config failed : %s \n", err)
 	}
 	fmt.Printf("config:\n %s \n", *cfg)
-
-	if identity == "server" {
-		fmt.Println("server mode")
-		core.SSServer(cfg.ServerPort, cfg.Method, cfg.Password)
-	} else {
-		tinylog.LogInfo("client mode\n")
-		core.SSLocal(cfg.LocalPort, cfg.ServerPort, cfg.Server, cfg.Method, cfg.Password)
+	if err := setLogDir(cfg.Logdir); err != nil {
+		fmt.Println("set log dir error : ", err)
+		os.Exit(1)
 	}
+
+	core.SSServer(cfg.ListenPort, cfg.Method, cfg.Password)
 }
 
 func parseFlag() (identity, confFile string, status bool) {

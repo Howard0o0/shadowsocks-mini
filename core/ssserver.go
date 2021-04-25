@@ -1,14 +1,15 @@
 package core
 
 import (
-	"fmt"
+	"errors"
 	"net"
 
+	"github.com/Howard0o0/shadowsocks-mini/cruiser"
 	"github.com/Howard0o0/shadowsocks-mini/encrypt"
-	"github.com/Howard0o0/shadowsocks-mini/procotol"
+	"github.com/Howard0o0/shadowsocks-mini/socks5"
 	"github.com/Howard0o0/shadowsocks-mini/tcpnet"
-	"github.com/Howard0o0/shadowsocks-mini/tinylog"
-	"github.com/pkg/errors"
+	"github.com/Howard0o0/shadowsocks-mini/util"
+	"github.com/sirupsen/logrus"
 )
 
 func SSServer(port, method, passwd string) {
@@ -16,23 +17,22 @@ func SSServer(port, method, passwd string) {
 	listenAddr := ":" + port
 	listener, err := net.Listen("tcp", listenAddr)
 	if err != nil {
-		tinylog.LogFatal("listen error : %v \n", err)
+		logrus.Error("listen error : ", err)
 	}
 
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			tinylog.LogError("accept error : %v \n", err)
-			conn.Close()
+			logrus.Error("accept error : ", err)
 			continue
 		}
 
 		go func() {
 
 			defer conn.Close()
-			cypherStream, err := encrypt.NewCypherStream(method, passwd, conn, false)
+			cypherStream, err := encrypt.NewCypherStream(method, passwd, conn)
 			if err != nil {
-				tinylog.LogError("new cypherstrea error : %v \n", err)
+				logrus.Error("new cypherstrea error : ", err)
 				return
 			}
 			ssProxy(cypherStream)
@@ -43,74 +43,50 @@ func SSServer(port, method, passwd string) {
 func ssProxy(localConn encrypt.CipherStreamer) {
 	defer localConn.Close()
 
-	if err := ssHandshake(localConn); err != nil {
-		tinylog.LogError("socks5 auth error : %v\n", err)
-		return
-	}
-
 	proxyAddr, remoteConn, err := ssConectToRemote(localConn)
 	if err != nil {
-		tinylog.LogError("socks5 connect remote error : %v\n", err)
+		logrus.Error("socks5 connect remote error : ", err)
 		return
 	}
 	defer remoteConn.Close()
 
-	tinylog.LogInfo("%v <--tunnel built--> %v \n", localConn.LocalAddr(), proxyAddr)
+	logrus.Infof("build tunnel %v<->%v<->%v", localConn.RemoteAddr(), localConn.LocalAddr(), proxyAddr)
 	if err := tcpnet.BuildSSTunnel(localConn, remoteConn); err != nil {
-		tinylog.LogError("%v <--tunnel error--> %v \n", localConn.LocalAddr(), proxyAddr)
-		tinylog.LogError("%s \n", err)
+		logrus.Errorf("tunnel error %v<->%v<->%v", localConn.RemoteAddr(), localConn.LocalAddr(), proxyAddr)
+		logrus.Error(err)
+		if errors.Is(err, cruiser.ErrRepeatedSalt) {
+			logrus.Warn("repeat salt from : ", localConn.RemoteAddr())
+		}
 	}
-	tinylog.LogInfo("%v <--tunnel destroyed--> %v \n", localConn.LocalAddr(), proxyAddr)
+	logrus.Infof("release tunnel %v<->%v<->%v", localConn.RemoteAddr(), localConn.LocalAddr(), proxyAddr)
 
-}
-
-func ssHandshake(localConn encrypt.CipherStreamer) error {
-
-	var err error
-	n := 0
-	buf := make([]byte, 1024)
-
-	if n, err = localConn.Read(buf); err != nil {
-		return errors.New("read socks5 auth header error")
-	}
-	if !procotol.Socks5Auth(buf[:n]) {
-		return fmt.Errorf("socks5 auth header illegal : %v", buf)
-	}
-	resp := procotol.BuildSocks5AuthOkRsp()
-	if n, err := localConn.Write(resp); err != nil || n != len(resp) {
-		return errors.New("socks5 auth response error")
-	}
-
-	return nil
 }
 
 func ssConectToRemote(localConn encrypt.CipherStreamer) (string, net.Conn, error) {
 
-	var err error
-	n := 0
+	var proxyAddr string
+	erw := util.ErrReadWrite{RW: localConn}
+
 	buf := make([]byte, 1024)
 
-	if n, err = localConn.Read(buf); err != nil {
-		return "", nil, errors.Wrap(err, "read socks5 remote addr error")
+	if n := erw.Read(buf); erw.Err == nil {
+		proxyAddr, erw.Err = socks5.ParseAddr(buf[:n])
 	}
-	var proxyAddr string
-	if proxyAddr, err = procotol.Socks5ReadProxyAddr(buf[:n]); err != nil {
-		return "", nil, errors.Wrap(err, "socks5 proxy address illegal  ")
+
+	if erw.Err != nil {
+		// refer to go-shadowsocks2
+		// handle active probe, drain illegal localConn to avoid leaking server behavioral features
+		// refer to https://gfw.report/blog/gfw_shadowsocks/
+		logrus.Warn("suspected host : ", localConn.RemoteAddr())
+		util.Suspend(localConn)
+		return "", nil, erw.Err
 	}
 
 	var remoteConn net.Conn
-	for try := 0; try < 3; try++ {
-		remoteConn, err = net.Dial("tcp", proxyAddr)
-	}
-	if err != nil {
-		return "", nil, errors.Wrap(err, "connect to proxy address error ")
+	if erw.Err == nil {
+		remoteConn, erw.Err = net.Dial("tcp", proxyAddr)
 	}
 
-	resp := procotol.BuildSocks5ConnectOkRsp()
-	if n, err := localConn.Write(resp); err != nil || n != len(resp) {
-		return "", nil, errors.New("socks5 connect response error")
-	}
-
-	return proxyAddr, remoteConn, nil
+	return proxyAddr, remoteConn, erw.Err
 
 }

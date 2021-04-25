@@ -5,36 +5,29 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 
-	"github.com/Howard0o0/shadowsocks-mini/tinylog"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
-	Server       string `json:"server"`
-	ServerPort   string `json:"server_port"`
-	LocalAddress string `json:"local_address"`
-	LocalPort    string `json:"local_port"`
-	Password     string `json:"password"`
-	Method       string `json:"method"`
-	Timeout      int    `json:"timeout"`
+	ListenPort string `json:"listen_port"`
+	Password   string `json:"password"`
+	Method     string `json:"method"`
+	Logdir     string `json:"logdir"`
 }
 
 func (cfg Config) String() string {
 	str := "\n"
-	str += "server\t" + cfg.Server + "\n"
-	str += "serverport\t" + cfg.ServerPort + "\n"
-	str += "localaddr\t" + cfg.LocalAddress + "\n"
-	str += "localport\t" + cfg.LocalPort + "\n"
+	str += "socks port\t" + cfg.ListenPort + "\n"
 	str += "passwd\t" + cfg.Password + "\n"
 	str += "method\t" + cfg.Method + "\n"
-	str += "timeout\t" + strconv.Itoa(cfg.Timeout) + "\n"
+	str += "logdir\t" + cfg.Logdir + "\n"
 
 	return str
 }
 
 func prtUsage() {
-	tinylog.LogError("usage : ssmini {-c|-s} -conf {ssmini.json}")
+	logrus.Info("usage : ssmini path_to_config_file")
 }
 
 func parseConf(filename string) (*Config, error) {
@@ -52,9 +45,7 @@ func parseConf(filename string) (*Config, error) {
 	}
 
 	supportMethods := map[string]bool{
-		"chacha20":    true,
-		"cypherbook":  true,
-		"aes-256-cfb": true,
+		"AEAD_CHACHA20_POLY1305": true,
 	}
 	if _, ok := supportMethods[cfg.Method]; !ok {
 		return nil, fmt.Errorf("unsupported method : %s ", cfg.Method)
