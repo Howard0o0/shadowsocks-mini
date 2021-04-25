@@ -26,6 +26,7 @@ touch /etc/ssmini
 ```
 
 2. Create a config.json save as /etc/ssmini/config.json 
+```json
 {
         "listen_port": "1998",
         "password": "your_password",
