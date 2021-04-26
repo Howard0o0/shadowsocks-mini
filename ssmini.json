@@ -1,6 +1,0 @@
-{
-        "listen_port": "1998",
-        "password": "howard5279",
-        "method": "AEAD_CHACHA20_POLY1305",
-        "logdir": "/home/howard/goproj/shadowsocks-mini/log"
-}
