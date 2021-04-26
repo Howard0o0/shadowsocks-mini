@@ -117,7 +117,9 @@ func (stream *CipherStream) Read(buf []byte) (int, error) {
 	if erw.Err == nil {
 		payload, erw.Err = stream.decipherer.Open(payload)
 	}
-	copy(buf[:len(payload)], payload)
+	if erw.Err == nil {
+		copy(buf[:len(payload)], payload)
+	}
 	return len(payload), erw.Err
 
 }
