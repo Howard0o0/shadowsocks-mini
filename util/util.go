@@ -3,10 +3,10 @@ package util
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
-	"net"
+	"net/http"
 	"os"
 )
 
@@ -101,22 +101,16 @@ func CreateDir(dir string) error {
 }
 
 func GetIp() (string, error) {
-	addrs, err := net.InterfaceAddrs()
-
-	if err != nil {
-		return "", err
+	responseClient, errClient := http.Get("http://ip.dhcp.cn/?ip") // 获取外网 IP
+	if errClient != nil {
+		os.Stderr.WriteString("获取外网 IP 失败，请检查网络\n")
+		return "", errClient
 	}
+	// 程序在使用完 response 后必须关闭 response 的主体。
+	defer responseClient.Body.Close()
 
-	for _, address := range addrs {
-		// 检查ip地址判断是否回环地址
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				return ipnet.IP.String(), nil
-			}
-
-		}
-	}
-
-	return "", errors.New("Can not find the ip address!")
+	body, _ := ioutil.ReadAll(responseClient.Body)
+	ip := string(body)
+	return ip, nil
 
 }
