@@ -10,12 +10,11 @@ import (
 
 func main() {
 
-	if len(os.Args) != 2 {
-		prtUsage()
-		os.Exit(1)
-	}
+	uri := flag.Bool("uri", false, "generate URI")
+	confFile := flag.String("conf", "/etc/ssmini/conf.json", "config file")
+	flag.Parse()
 
-	cfg, err := parseConf(os.Args[1])
+	cfg, err := parseConf(*confFile)
 	if err != nil {
 		fmt.Printf("parse config failed : %s \n", err)
 	}
@@ -25,27 +24,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	if *uri {
+		base64URI, err := genURI(cfg)
+		if err != nil {
+			os.Stderr.WriteString(err.Error())
+		} else {
+			fmt.Println("URI:")
+			fmt.Println(base64URI)
+		}
+		os.Exit(0)
+	}
+
 	core.SSServer(cfg.ListenPort, cfg.Method, cfg.Password)
-}
-
-func parseFlag() (identity, confFile string, status bool) {
-	var local, server bool
-
-	flag.BoolVar(&local, "c", false, "ss local mode")
-	flag.BoolVar(&server, "s", false, "ss server mode")
-	flag.StringVar(&confFile, "conf", "", "config file absolute path")
-	flag.Parse()
-
-	if len(confFile) == 0 || (!local && !server) {
-		return "", "", false
-	}
-
-	if local {
-		identity = "local"
-	} else {
-		identity = "server"
-	}
-
-	return identity, confFile, true
-
 }
