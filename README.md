@@ -13,6 +13,17 @@ thanks [go-shadowsocks2](https://github.com/shadowsocks/go-shadowsocks2)
 - capture GFW's active probe and relay attack
 
 ## Install
+
+install from bash (recommand)
+
+```bash
+# login as root first
+su root
+# one-click setup
+bash <(curl -s https://raw.githubusercontent.com/Howard0o0/shadowsocks-mini/dev/install.sh)
+```
+
+install from go
 ```bash
 go get -u -v github.com/Howard0o0/shadowsocks-mini@latest
 ```
