@@ -14,8 +14,6 @@ thanks [go-shadowsocks2](https://github.com/shadowsocks/go-shadowsocks2)
 
 ## Install
 
-install from bash (recommand)
-
 ```bash
 # login as root first
 su root
@@ -23,33 +21,30 @@ su root
 bash <(curl -s https://raw.githubusercontent.com/Howard0o0/shadowsocks-mini/dev/install.sh)
 ```
 
-install from go
-```bash
-go get -u -v github.com/Howard0o0/shadowsocks-mini@latest
-```
 
 ## Usage
 
-1. Create ssmini's workspace
+check status 
 ```bash
-#if not in root, use sudo 
-touch /etc/ssmini
+systemctl status ssmini
 ```
 
-2. Create a config.json save as /etc/ssmini/config.json 
-```json
-{
-        "listen_port": "1998",
-        "password": "your_password",
-        "method": "AEAD_CHACHA20_POLY1305",
-        "logdir": "path/to/save/log"
-}
+show URI 
+```bash
+ssmini -uri
 ```
 
-3. Run 
+stop 
 ```bash
-nohup $GOPATH/bin/shadowsocks-mini  /etc/ssmini/config.json &
+systemctl stop ssmini
 ```
+
+start 
+```bash
+systemctl start ssmini
+```
+
+
 
 
 
