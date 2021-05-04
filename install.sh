@@ -48,6 +48,8 @@ function genSSminiConf() {
 		mkdir $workspace/log
 	fi
 
+	chmod -R 777 $workspace
+
 	touch conf.json
 	echo "{" >>conf.json
 	echo "  \"listen_port\":\"$gport\",   " >>conf.json
