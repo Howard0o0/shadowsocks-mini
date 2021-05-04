@@ -1,4 +1,4 @@
-ssconfig.json
+*.json
 nohup.out
 ssmini
 shadowsocks-mini
