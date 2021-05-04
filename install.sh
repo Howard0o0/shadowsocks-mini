@@ -65,7 +65,7 @@ function downloadExec() {
 		rm "/usr/local/bin/ssmini"
 	fi
 
-	wget --tries=5 --timeout=3 -cO /usr/local/bin/ssmini https://github.com/Howard0o0/shadowsocks-mini/releases/download/v2.0/ssmini
+	wget --tries=5 --timeout=3 -cO /usr/local/bin/ssmini https://github.com/Howard0o0/shadowsocks-mini/releases/download/v3.0/ssmini
 	if [ $? != 0 ]; then
 		echo "download ssmini failed, please check your network situation and try again"
 		exit 1
@@ -115,3 +115,4 @@ systemctl enable ssmini
 systemctl start ssmini
 
 echo "ssmini installed"
+ssmini -uri -conf $workspace/conf.json
