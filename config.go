@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 
+	"github.com/Howard0o0/shadowsocks-mini/util"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,15 +22,11 @@ type Config struct {
 func (cfg Config) String() string {
 	str := "\n"
 	str += "socks port\t" + cfg.ListenPort + "\n"
-	str += "passwd\t" + cfg.Password + "\n"
-	str += "method\t" + cfg.Method + "\n"
-	str += "logdir\t" + cfg.Logdir + "\n"
+	str += "passwd\t\t" + cfg.Password + "\n"
+	str += "method\t\t" + cfg.Method + "\n"
+	str += "logdir\t\t" + cfg.Logdir + "\n"
 
 	return str
-}
-
-func prtUsage() {
-	logrus.Info("usage : ssmini path_to_config_file")
 }
 
 func parseConf(filename string) (*Config, error) {
@@ -52,4 +51,25 @@ func parseConf(filename string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func genURI(cfg *Config) (string, error) {
+
+	// ss://AEAD_CHACHA20_POLY1305:your-password@:8488
+	ip, err := util.GetIp()
+	if err != nil {
+		return "", err
+	}
+
+	buf := bytes.NewBuffer([]byte{})
+	buf.WriteString("chacha20-ietf-poly1305")
+	buf.WriteString(":")
+	buf.WriteString(cfg.Password)
+	buf.WriteString("@")
+
+	buf.WriteString(ip)
+	buf.WriteString(":")
+	buf.WriteString(cfg.ListenPort)
+	logrus.Infoln(buf.String())
+	return "ss://" + base64.StdEncoding.EncodeToString(buf.Bytes()), nil
 }
