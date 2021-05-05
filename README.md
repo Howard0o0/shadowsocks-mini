@@ -21,6 +21,11 @@ su root
 bash <(curl -s https://raw.githubusercontent.com/Howard0o0/shadowsocks-mini/dev/install.sh)
 ```
 
+once installed, ssmini is ready and running, which will self-boot after reboot
+
+you can check log in /etc/ssmini/log
+
+or check ssmini's status by usage below
 
 ## Usage
 
