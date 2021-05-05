@@ -1,6 +1,6 @@
 *.json
 nohup.out
 ssmini
-shadowsocks-mini
+ssmini-mini
 buildmac.sh
 log/
