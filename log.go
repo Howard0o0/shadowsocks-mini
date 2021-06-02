@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"os"
 	"time"
 
+	"github.com/Howard0o0/shadowsocks-mini/util"
+	"github.com/robfig/cron"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -80,11 +83,31 @@ func init() {
 
 }
 
+func setClearLogFilesTimer(logPath string) {
+	c := cron.New()
+	c.AddFunc("@monthly", func() {
+		previousMonth := time.Now().AddDate(0, -1, 0).Format("2006-01")
+		fuzzyLogfiles := bytes.NewBuffer([]byte{})
+		fuzzyLogfiles.WriteString(logPath)
+		fuzzyLogfiles.WriteString("/*")
+		fuzzyLogfiles.WriteString(previousMonth)
+		fuzzyLogfiles.WriteString("*.log")
+		if err := util.DeleteFiles(fuzzyLogfiles.String()); err != nil {
+			logrus.Error("delete log files errror : ", err)
+		}
+		logrus.Info(previousMonth + " log files clear")
+	})
+
+	go c.Start()
+}
+
 func setLogDir(dir string) error {
 
 	hook := &logfileHook{dir: dir}
 	logrus.AddHook(hook)
 	logrus.AddHook(&warnHook{logfileHook: *hook})
+
+	setClearLogFilesTimer(dir)
 
 	return createDir(dir)
 }
