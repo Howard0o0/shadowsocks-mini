@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 type ErrReadWrite struct {
@@ -112,4 +113,19 @@ func GetIp() (string, error) {
 	ip := string(body)
 	return ip, nil
 
+}
+
+func DeleteFiles(fuzzyFileName string) error {
+
+	files, err := filepath.Glob(fuzzyFileName)
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		if err := os.Remove(f); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
