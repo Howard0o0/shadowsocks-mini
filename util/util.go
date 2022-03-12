@@ -5,7 +5,9 @@ import (
 	"encoding/binary"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
+	"path/filepath"
 )
 
 type ErrReadWrite struct {
@@ -93,6 +95,36 @@ func CreateDir(dir string) error {
 	err2 := os.MkdirAll(dir, 0755)
 	if err2 != nil {
 		return err2
+	}
+
+	return nil
+}
+
+func GetIp() (string, error) {
+	responseClient, errClient := http.Get("http://ip.dhcp.cn/?ip") // 获取外网 IP
+	if errClient != nil {
+		os.Stderr.WriteString("获取外网 IP 失败，请检查网络\n")
+		return "", errClient
+	}
+	// 程序在使用完 response 后必须关闭 response 的主体。
+	defer responseClient.Body.Close()
+
+	body, _ := ioutil.ReadAll(responseClient.Body)
+	ip := string(body)
+	return ip, nil
+
+}
+
+func DeleteFiles(fuzzyFileName string) error {
+
+	files, err := filepath.Glob(fuzzyFileName)
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		if err := os.Remove(f); err != nil {
+			return err
+		}
 	}
 
 	return nil

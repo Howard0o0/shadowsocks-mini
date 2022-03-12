@@ -46,6 +46,11 @@ func ssProxy(localConn encrypt.CipherStreamer) {
 	proxyAddr, remoteConn, err := ssConectToRemote(localConn)
 	if err != nil {
 		logrus.Error("socks5 connect remote error : ", err)
+		// refer to go-shadowsocks2
+		// handle active probe, drain illegal localConn to avoid leaking server behavioral features
+		// refer to https://gfw.report/blog/gfw_shadowsocks/
+		logrus.Warn("suspected host : ", localConn.RemoteAddr())
+		util.Suspend(localConn)
 		return
 	}
 	defer remoteConn.Close()
@@ -71,15 +76,6 @@ func ssConectToRemote(localConn encrypt.CipherStreamer) (string, net.Conn, error
 
 	if n := erw.Read(buf); erw.Err == nil {
 		proxyAddr, erw.Err = socks5.ParseAddr(buf[:n])
-	}
-
-	if erw.Err != nil {
-		// refer to go-shadowsocks2
-		// handle active probe, drain illegal localConn to avoid leaking server behavioral features
-		// refer to https://gfw.report/blog/gfw_shadowsocks/
-		logrus.Warn("suspected host : ", localConn.RemoteAddr())
-		util.Suspend(localConn)
-		return "", nil, erw.Err
 	}
 
 	var remoteConn net.Conn
